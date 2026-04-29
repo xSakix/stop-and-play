@@ -43,8 +43,9 @@ export function MusicPicker({ visible, onClose }: Props) {
       addTrack(track);
       setCurrentTrack(track);
       onClose();
-    } catch {
-      Alert.alert('Error', 'Could not open audio file. Please try another.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Could not open the file.';
+      Alert.alert('Could not add track', message + '\n\nOnly audio files are supported.');
     }
   };
 
