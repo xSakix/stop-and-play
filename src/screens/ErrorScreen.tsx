@@ -16,7 +16,7 @@ export function ErrorScreen() {
           {errorMessage ?? 'An unknown error occurred.'}
         </Text>
 
-        <TouchableOpacity style={styles.retryBtn} onPress={start} activeOpacity={0.85}>
+        <TouchableOpacity style={styles.retryBtn} onPress={() => { void start(); }} activeOpacity={0.85}>
           <Text style={styles.retryLabel}>Try Again</Text>
         </TouchableOpacity>
 

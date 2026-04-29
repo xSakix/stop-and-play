@@ -3,7 +3,8 @@ import { GamePhase } from '../types';
 export type GameEvent =
   | 'START'          // host taps Start — begins async audio load
   | 'LOADED'         // audio loaded successfully
-  | 'LOAD_FAILED'    // audio failed to load or play
+  | 'LOAD_FAILED'    // audio failed to load (loading phase)
+  | 'PLAY_FAILED'    // audio failed to play (playing phase)
   | 'PLAY_TIMER'     // random play timer fired → freeze
   | 'FREEZE_TIMER'   // random freeze timer fired → resume
   | 'MANUAL_FREEZE'  // host overrides → freeze now
@@ -18,7 +19,7 @@ type TransitionTable = Partial<Record<GameEvent, GamePhase>>;
 export const TRANSITIONS: Record<GamePhase, TransitionTable> = {
   idle:    { START: 'loading' },
   loading: { LOADED: 'playing', LOAD_FAILED: 'error', STOP: 'idle' },
-  playing: { PLAY_TIMER: 'frozen', MANUAL_FREEZE: 'frozen', STOP: 'idle' },
+  playing: { PLAY_TIMER: 'frozen', MANUAL_FREEZE: 'frozen', PLAY_FAILED: 'error', STOP: 'idle' },
   frozen:  { FREEZE_TIMER: 'playing', STOP: 'idle' },
   error:   { START: 'loading', STOP: 'idle' },
 };

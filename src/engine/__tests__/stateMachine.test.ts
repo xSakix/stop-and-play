@@ -5,7 +5,7 @@ import { GamePhase } from '../../types';
 
 /** All events defined in the union type */
 const ALL_EVENTS: GameEvent[] = [
-  'START', 'LOADED', 'LOAD_FAILED',
+  'START', 'LOADED', 'LOAD_FAILED', 'PLAY_FAILED',
   'PLAY_TIMER', 'FREEZE_TIMER', 'MANUAL_FREEZE', 'STOP',
 ];
 
@@ -51,6 +51,10 @@ describe('transition() — legal transitions', () => {
     expect(transition('frozen', 'STOP')).toBe('idle');
   });
 
+  test('playing + PLAY_FAILED → error', () => {
+    expect(transition('playing', 'PLAY_FAILED')).toBe('error');
+  });
+
   test('error + START → loading', () => {
     expect(transition('error', 'START')).toBe('loading');
   });
@@ -74,6 +78,10 @@ describe('transition() — illegal events are no-ops', () => {
 
   test('idle ignores PLAY_TIMER', () => {
     expect(transition('idle', 'PLAY_TIMER')).toBe('idle');
+  });
+
+  test('idle ignores PLAY_FAILED', () => {
+    expect(transition('idle', 'PLAY_FAILED')).toBe('idle');
   });
 
   test('loading ignores PLAY_TIMER', () => {

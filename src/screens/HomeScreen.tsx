@@ -48,7 +48,7 @@ export function HomeScreen() {
       <View style={styles.startContainer}>
         <TouchableOpacity
           style={[styles.startButton, !currentTrack && styles.startButtonDisabled]}
-          onPress={start}
+          onPress={() => { void start(); }}
           disabled={!currentTrack}
           activeOpacity={0.85}
           accessibilityLabel="Start the game"

@@ -41,7 +41,7 @@ function expect(actual: unknown) {
 // ── All events / phases ───────────────────────────────────────────────────────
 
 const ALL_EVENTS: GameEvent[] = [
-  'START', 'LOADED', 'LOAD_FAILED',
+  'START', 'LOADED', 'LOAD_FAILED', 'PLAY_FAILED',
   'PLAY_TIMER', 'FREEZE_TIMER', 'MANUAL_FREEZE', 'STOP',
 ];
 
@@ -59,6 +59,7 @@ describe('Legal transitions', () => {
   test('playing + STOP → idle',            () => expect(transition('playing', 'STOP'         )).toBe('idle'   ));
   test('frozen + FREEZE_TIMER → playing',  () => expect(transition('frozen',  'FREEZE_TIMER' )).toBe('playing'));
   test('frozen + STOP → idle',             () => expect(transition('frozen',  'STOP'         )).toBe('idle'   ));
+  test('playing + PLAY_FAILED → error',    () => expect(transition('playing', 'PLAY_FAILED'  )).toBe('error'  ));
   test('error + START → loading',          () => expect(transition('error',   'START'        )).toBe('loading'));
   test('error + STOP → idle',              () => expect(transition('error',   'STOP'         )).toBe('idle'   ));
 });
@@ -69,6 +70,7 @@ describe('Illegal events return current phase unchanged', () => {
   test('idle + STOP → idle',              () => expect(transition('idle',    'STOP'         )).toBe('idle'   ));
   test('idle + LOADED → idle',            () => expect(transition('idle',    'LOADED'       )).toBe('idle'   ));
   test('idle + PLAY_TIMER → idle',        () => expect(transition('idle',    'PLAY_TIMER'   )).toBe('idle'   ));
+  test('idle + PLAY_FAILED → idle',       () => expect(transition('idle',    'PLAY_FAILED'  )).toBe('idle'   ));
   test('loading + PLAY_TIMER → loading',  () => expect(transition('loading', 'PLAY_TIMER'   )).toBe('loading'));
   test('loading + MANUAL_FREEZE → loading',() => expect(transition('loading','MANUAL_FREEZE')).toBe('loading'));
   test('playing + LOADED → playing',      () => expect(transition('playing', 'LOADED'       )).toBe('playing'));

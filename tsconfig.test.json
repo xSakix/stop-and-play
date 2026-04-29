@@ -7,8 +7,7 @@
     "types": ["node"],
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
-    "outDir": "/tmp/stop-and-play-test"
+    "skipLibCheck": true
   },
   "include": ["src/engine/**/*", "src/types/**/*", "scripts/run-tests.ts"]
 }

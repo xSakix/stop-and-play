@@ -54,8 +54,8 @@ export function useGameEngine() {
     switch (phase) {
 
       case 'playing': {
-        // play() is awaited; any I/O failure dispatches LOAD_FAILED → error screen
-        audioManager.play().catch(() => dispatch('LOAD_FAILED'));
+        // PLAY_FAILED is defined on the playing phase → error screen
+        audioManager.play().catch(() => dispatch('PLAY_FAILED'));
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
         const delaySec = randomBetween(config.playMin, config.playMax);
@@ -64,8 +64,8 @@ export function useGameEngine() {
       }
 
       case 'frozen': {
-        // pause() failure is non-fatal — game stays frozen, timer still runs
-        audioManager.pause().catch(console.error);
+        // pause() failure returns to idle — better than audio playing during freeze
+        audioManager.pause().catch(() => dispatch('STOP'));
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 
         const durationSec = randomBetween(config.freezeMin, config.freezeMax);
@@ -97,7 +97,7 @@ export function useGameEngine() {
       clearTimer(playTimerRef);
       clearTimer(freezeTimerRef);
       clearTick(countdownRef);
-      if (phase === 'frozen') setFreezeRemaining(0);
+      setFreezeRemaining(0); // always safe — 0 is the correct non-frozen value
     };
   }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
   // dispatch, config, setFreezeRemaining omitted intentionally:
