@@ -1,10 +1,5 @@
-import { Audio, AVPlaybackStatus } from 'expo-av';
+import { Audio, AVPlaybackStatus, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
 
-/**
- * Map default track URI keys to bundled asset requires.
- * Drop MP3 files into assets/tracks/ and reference them here.
- * The files are loaded lazily so missing ones don't crash the app.
- */
 const DEFAULT_ASSETS: Record<string, () => unknown> = {
   'default:groove': () => require('../../assets/tracks/groove.mp3'),
   'default:party':  () => require('../../assets/tracks/party.mp3'),
@@ -17,18 +12,16 @@ class AudioManager {
   async init(): Promise<void> {
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
-      // Keep playing when the screen locks or the app backgrounds
       staysActiveInBackground: true,
       playsInSilentModeIOS: true,
-      shouldDuckAndroid: false,
+      // Duck other audio (notifications, alerts) then restore — right for a party game.
+      // DoNotMix would completely stop on phone calls; DuckOthers is less disruptive.
+      interruptionModeIOS: InterruptionModeIOS.DuckOthers,
+      shouldDuckAndroid: true,
+      interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
     });
   }
 
-  /**
-   * Load a track. Always unloads the previous sound first.
-   * @param uri  Either a "default:*" key or a filesystem URI from the picker.
-   * @param isDefault  True for bundled tracks, false for device tracks.
-   */
   async load(uri: string, isDefault: boolean): Promise<void> {
     await this.unload();
 
@@ -36,9 +29,7 @@ class AudioManager {
 
     if (isDefault) {
       const assetLoader = DEFAULT_ASSETS[uri];
-      if (!assetLoader) {
-        throw new Error(`Unknown default track: ${uri}`);
-      }
+      if (!assetLoader) throw new Error(`Unknown default track: ${uri}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       source = assetLoader() as any;
     } else {
@@ -56,8 +47,9 @@ class AudioManager {
 
   async play(): Promise<void> {
     if (!this.sound) return;
-    const status = await this.sound.getStatusAsync();
-    if ((status as AVPlaybackStatus & { isLoaded: boolean }).isLoaded) {
+    // AVPlaybackStatus is a discriminated union — isLoaded is the discriminant
+    const status: AVPlaybackStatus = await this.sound.getStatusAsync();
+    if (status.isLoaded) {
       await this.sound.playAsync();
     }
   }
@@ -83,5 +75,4 @@ class AudioManager {
   }
 }
 
-// Singleton — one shared instance across the app
 export const audioManager = new AudioManager();
