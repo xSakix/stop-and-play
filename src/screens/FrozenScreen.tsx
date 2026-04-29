@@ -8,12 +8,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useGameStore } from '../store/gameStore';
-import { useGameEngine } from '../hooks/useGameEngine';
+import { useGameEngineActions } from '../engine/GameEngineProvider';
 
 export function FrozenScreen() {
   const showCountdown        = useGameStore((s) => s.config.showCountdown);
   const freezeRemaining      = useGameStore((s) => s.freezeRemainingSeconds);
-  const { stop } = useGameEngine();
+  const { stop } = useGameEngineActions();
 
   // Flash-in effect on freeze
   const flashAnim = useRef(new Animated.Value(0)).current;

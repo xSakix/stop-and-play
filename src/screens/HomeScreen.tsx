@@ -7,7 +7,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useGameStore } from '../store/gameStore';
-import { useGameEngine } from '../hooks/useGameEngine';
+import { useGameEngineActions } from '../engine/GameEngineProvider';
 import { SettingsSheet } from '../components/SettingsSheet';
 import { MusicPicker } from '../components/MusicPicker';
 
@@ -15,7 +15,7 @@ export function HomeScreen() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [pickerOpen, setPickerOpen]     = useState(false);
   const currentTrack = useGameStore((s) => s.currentTrack);
-  const { start } = useGameEngine();
+  const { start } = useGameEngineActions();
 
   return (
     <SafeAreaView style={styles.container}>

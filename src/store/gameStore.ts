@@ -21,6 +21,7 @@ interface GameStore {
   // --- transient (not persisted) ---
   phase: GamePhase;
   freezeRemainingSeconds: number;
+  errorMessage: string | null;
 
   // --- persisted ---
   config: GameConfig;
@@ -30,6 +31,7 @@ interface GameStore {
   // --- actions ---
   setPhase: (phase: GamePhase) => void;
   setFreezeRemaining: (seconds: number) => void;
+  setError: (message: string) => void;
   setConfig: (patch: Partial<GameConfig>) => void;
   setCurrentTrack: (track: Track) => void;
   addTrack: (track: Track) => void;
@@ -38,15 +40,18 @@ interface GameStore {
 
 export const useGameStore = create<GameStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       phase: 'idle',
       freezeRemainingSeconds: 0,
+      errorMessage: null,
       config: DEFAULT_CONFIG,
       tracks: DEFAULT_TRACKS,
       currentTrack: DEFAULT_TRACKS[0],
 
-      setPhase: (phase) => set({ phase }),
+      setPhase: (phase) =>
+        set({ phase, ...(phase === 'idle' ? { errorMessage: null } : {}) }),
       setFreezeRemaining: (seconds) => set({ freezeRemainingSeconds: seconds }),
+      setError: (message) => set({ errorMessage: message }),
       setConfig: (patch) =>
         set((s) => ({ config: { ...s.config, ...patch } })),
       setCurrentTrack: (track) => set({ currentTrack: track }),
@@ -55,16 +60,13 @@ export const useGameStore = create<GameStore>()(
         set((s) => {
           const tracks = s.tracks.filter((t) => t.id !== id);
           const currentTrack =
-            s.currentTrack?.id === id
-              ? (tracks[0] ?? null)
-              : s.currentTrack;
+            s.currentTrack?.id === id ? (tracks[0] ?? null) : s.currentTrack;
           return { tracks, currentTrack };
         }),
     }),
     {
       name: 'stop-and-play-settings',
       storage: createJSONStorage(() => AsyncStorage),
-      // Only persist settings, not the transient game state
       partialize: (s) => ({
         config: s.config,
         tracks: s.tracks,

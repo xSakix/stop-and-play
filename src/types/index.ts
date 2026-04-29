@@ -1,4 +1,4 @@
-export type GamePhase = 'idle' | 'playing' | 'frozen';
+export type GamePhase = 'idle' | 'loading' | 'playing' | 'frozen' | 'error';
 
 export interface Track {
   id: string;

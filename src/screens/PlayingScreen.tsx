@@ -8,11 +8,11 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useGameStore } from '../store/gameStore';
-import { useGameEngine } from '../hooks/useGameEngine';
+import { useGameEngineActions } from '../engine/GameEngineProvider';
 
 export function PlayingScreen() {
   const currentTrack = useGameStore((s) => s.currentTrack);
-  const { stop, manualFreeze } = useGameEngine();
+  const { stop, manualFreeze } = useGameEngineActions();
 
   // Subtle pulse animation to reinforce "live" state
   const pulse = useRef(new Animated.Value(1)).current;
