@@ -72,6 +72,28 @@ export const useGameStore = create<GameStore>()(
         tracks: s.tracks,
         currentTrack: s.currentTrack,
       }),
+      // Validate and sanitise config values loaded from storage.
+      // Guards against schema drift, corruption, or hand-edited AsyncStorage.
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<typeof current>;
+        const raw = { ...DEFAULT_CONFIG, ...(p.config ?? {}) };
+
+        const config: GameConfig = {
+          ...raw,
+          // If range is inverted or degenerate, reset that pair to defaults
+          playMin:   raw.playMin >= raw.playMax  ? DEFAULT_CONFIG.playMin  : raw.playMin,
+          playMax:   raw.playMin >= raw.playMax  ? DEFAULT_CONFIG.playMax  : raw.playMax,
+          freezeMin: raw.freezeMin >= raw.freezeMax ? DEFAULT_CONFIG.freezeMin : raw.freezeMin,
+          freezeMax: raw.freezeMin >= raw.freezeMax ? DEFAULT_CONFIG.freezeMax : raw.freezeMax,
+        };
+
+        return {
+          ...current,
+          config,
+          tracks:       p.tracks       ?? current.tracks,
+          currentTrack: p.currentTrack ?? current.currentTrack,
+        };
+      },
     },
   ),
 );
